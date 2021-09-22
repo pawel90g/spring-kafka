@@ -1,15 +1,15 @@
 package eu.garbacik.consumer.services;
 
-import eu.garbacik.common.settings.KafkaSettings;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
 @Component
+@Slf4j
 public class Consumer {
 
     @KafkaListener(id = "consumer-1", topics = "#{ @kafkaSettings.getTopic().getName() }")
     public void listen(String message){
-        System.out.println(message);
+        log.info("Message received: " + message);
     }
 }

@@ -17,7 +17,7 @@ public class ProducerApplication {
     public ApplicationRunner runner(Producer producer) {
         return args -> {
             for(Integer i = 0; i < 10; i++){
-                producer.sendMessage("test" + i);
+                producer.sendMessageWithCallback("test" + i);
             }
         };
     }
