@@ -4,3 +4,9 @@ kafka:
     name: 'topic1'
     partitionsCount: 10
     replicasCount: 1
+  replyTopic:
+    name: 'topic2'
+    replyName: 'reply-topic'
+    groupId: 'reply-group'
+    partitionsCount: 10
+    replicasCount: 1
