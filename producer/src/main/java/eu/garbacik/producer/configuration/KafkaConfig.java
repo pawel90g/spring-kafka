@@ -2,9 +2,12 @@ package eu.garbacik.producer.configuration;
 
 import eu.garbacik.common.settings.TopicSettings;
 import eu.garbacik.common.settings.KafkaSettings;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -15,12 +18,14 @@ import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaAdmin;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
+import org.springframework.kafka.support.ProducerListener;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
 @EnableConfigurationProperties(KafkaSettings.class)
+@Slf4j
 public class KafkaConfig {
 
     private final KafkaSettings kafkaSettings;
@@ -67,5 +72,21 @@ public class KafkaConfig {
     @Bean
     public KafkaTemplate<String, String> kafkaTemplate() {
         return new KafkaTemplate<>(producerFactory());
+    }
+
+    @Bean(name = "kafkaTemplateWithListener")
+    public KafkaTemplate<String, String> kafkaTemplateWithListener() {
+        var kafkaTemplate = new KafkaTemplate<>(producerFactory());
+
+        kafkaTemplate.setProducerListener(new ProducerListener<String, String>() {
+            @Override
+            public void onSuccess(ProducerRecord<String, String> producerRecord, RecordMetadata recordMetadata) {
+                log.info("ACK from ProducerListener message: {}, offset:  {}",
+                        producerRecord.value(),
+                        recordMetadata.offset());
+            }
+        });
+
+        return kafkaTemplate;
     }
 }

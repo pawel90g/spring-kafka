@@ -15,23 +15,23 @@ import org.springframework.util.concurrent.ListenableFutureCallback;
 @EnableConfigurationProperties(KafkaSettings.class)
 public class Producer {
 
-    private final KafkaTemplate<String, String> kafkaTemplate;
+    private final KafkaTemplate<String, String> kafkaTemplateWithListener;
     private final KafkaSettings kafkaSettings;
 
     @Autowired
-    public Producer(KafkaTemplate<String, String> kafkaTemplate,
+    public Producer(KafkaTemplate<String, String> kafkaTemplateWithListener,
                     KafkaSettings kafkaSettings) {
-        this.kafkaTemplate = kafkaTemplate;
+        this.kafkaTemplateWithListener = kafkaTemplateWithListener;
         this.kafkaSettings = kafkaSettings;
     }
 
     public void sendMessage(String msg){
-        kafkaTemplate.send(kafkaSettings.getTopic().getName(), msg);
+        kafkaTemplateWithListener.send(kafkaSettings.getTopic().getName(), msg);
     }
 
     public void sendMessageWithCallback(String msg) {
         ListenableFuture<SendResult<String, String>> future =
-                kafkaTemplate.send(kafkaSettings.getTopic().getName(), msg);
+                kafkaTemplateWithListener.send(kafkaSettings.getTopic().getName(), msg);
         future.addCallback(new ListenableFutureCallback<>() {
             @Override
             public void onFailure(Throwable throwable) {
