@@ -1,10 +1,12 @@
 package eu.garbacik.producer.configuration;
 
+import eu.garbacik.common.messages.Message;
 import eu.garbacik.common.settings.KafkaSettings;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.serialization.StringSerializer;
+import org.apache.kafka.connect.json.JsonSerializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -43,13 +45,17 @@ public class ProducerConfig {
         var containerProperties =
                 new ContainerProperties(kafkaSettings.getReplyTopic().getReplyName());
         containerProperties.setGroupId(kafkaSettings.getReplyTopic().getGroupId());
-        //containerProperties.setMissingTopicsFatal(false);
         return new KafkaMessageListenerContainer<>(consumerFactory, containerProperties);
     }
 
     @Bean
     public ReplyingKafkaTemplate<String, String, String> replyingKafkaTemplate(ConsumerFactory<String, String> consumerFactory) {
         return new ReplyingKafkaTemplate(producerFactory(), replyContainer(consumerFactory));
+    }
+
+    @Bean
+    public KafkaTemplate<String, Message> messageKafkaTemplate(){
+        return new KafkaTemplate<>(jsonValueProducerFactory());
     }
 
     @Bean(name = "kafkaTemplateWithListener")
@@ -79,6 +85,20 @@ public class ProducerConfig {
         configProps.put(
                 org.apache.kafka.clients.producer.ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
                 StringSerializer.class);
+        return new DefaultKafkaProducerFactory<>(configProps);
+    }
+
+    private ProducerFactory<String, Message> jsonValueProducerFactory() {
+        Map<String, Object> configProps = new HashMap<>();
+        configProps.put(
+                org.apache.kafka.clients.producer.ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
+                this.kafkaSettings.getBootstrapAddress());
+        configProps.put(
+                org.apache.kafka.clients.producer.ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
+                StringSerializer.class);
+        configProps.put(
+                org.apache.kafka.clients.producer.ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
+                org.springframework.kafka.support.serializer.JsonSerializer.class);
         return new DefaultKafkaProducerFactory<>(configProps);
     }
 }

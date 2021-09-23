@@ -1,5 +1,6 @@
 package eu.garbacik.producer;
 
+import eu.garbacik.common.messages.Message;
 import eu.garbacik.producer.services.Producer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -23,16 +24,9 @@ public class ProducerApplication implements CommandLineRunner {
         var producer = applicationContext.getBean(Producer.class);
 
         for (Integer i = 0; i < 10; i++) {
-            producer.sendMessageAndReadResponse("test" + i);
+//            producer.sendMessage("test" + i);
+//            producer.sendMessageAndReadResponse("test" + i);
+            producer.sendJsonMessage(new Message(i, "test" + i, i % 2 == 0));
         }
     }
-
-//    @Bean
-//    public ApplicationRunner runner(Producer producer) {
-//        return args -> {
-//            for(Integer i = 0; i < 10; i++){
-//                producer.sendMessageAndReadResponse("test" + i);
-//            }
-//        };
-//    }
 }

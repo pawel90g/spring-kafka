@@ -1,5 +1,6 @@
 package eu.garbacik.producer.services;
 
+import eu.garbacik.common.messages.Message;
 import eu.garbacik.common.settings.KafkaSettings;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -22,14 +23,17 @@ import java.util.concurrent.ExecutionException;
 public class Producer {
 
     private final KafkaTemplate<String, String> kafkaTemplateWithListener;
+    private final KafkaTemplate<String, Message> messageKafkaTemplate;
     private final ReplyingKafkaTemplate<String, String, String> replyingKafkaTemplate;
     private final KafkaSettings kafkaSettings;
 
     @Autowired
     public Producer(KafkaTemplate<String, String> kafkaTemplateWithListener,
+                    KafkaTemplate<String, Message> messageKafkaTemplate,
                     ReplyingKafkaTemplate<String, String, String> replyingKafkaTemplate,
                     KafkaSettings kafkaSettings) {
         this.kafkaTemplateWithListener = kafkaTemplateWithListener;
+        this.messageKafkaTemplate = messageKafkaTemplate;
         this.replyingKafkaTemplate = replyingKafkaTemplate;
         this.kafkaSettings = kafkaSettings;
     }
@@ -69,5 +73,9 @@ public class Producer {
 
         ConsumerRecord<String, String> consumerRecord = future.get();
         log.info("Reply received: {}", consumerRecord.value());
+    }
+
+    public void sendJsonMessage(Message message){
+        messageKafkaTemplate.send(kafkaSettings.getTopic().getName(), message);
     }
 }

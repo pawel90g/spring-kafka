@@ -1,5 +1,6 @@
 package eu.garbacik.consumer.services;
 
+import eu.garbacik.common.messages.Message;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.KafkaHeaders;
@@ -33,5 +34,15 @@ public class Consumer {
                 ", offset: " + offset);
 
         return "This is response for message: " + message;
+    }
+
+    @KafkaListener(id="consumer-json",
+            topics = "#{ @kafkaSettings.getTopic().getName() }",
+            containerFactory="messageKafkaListenerContainerFactory")
+    public void listenForMessage(Message message){
+        log.info("JSON Message received: id: {}, name: {}, active: {}",
+                message.getId(),
+                message.getName(),
+                message.getActive());
     }
 }
