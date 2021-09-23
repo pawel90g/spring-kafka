@@ -1,7 +1,6 @@
 package eu.garbacik.consumer.services;
 
 import lombok.extern.slf4j.Slf4j;
-import org.intellij.lang.annotations.Language;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.handler.annotation.Header;

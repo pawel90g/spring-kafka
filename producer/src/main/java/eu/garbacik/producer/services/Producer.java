@@ -16,8 +16,8 @@ import org.springframework.util.concurrent.ListenableFutureCallback;
 
 import java.util.concurrent.ExecutionException;
 
-@Slf4j
 @Component
+@Slf4j
 @EnableConfigurationProperties(KafkaSettings.class)
 public class Producer {
 

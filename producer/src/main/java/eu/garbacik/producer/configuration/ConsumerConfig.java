@@ -24,8 +24,12 @@ public class ConsumerConfig {
         this.kafkaSettings = kafkaSettings;
     }
 
-    @Bean
-    public Map<String, Object> consumerConfigs() {
+    @Bean(name = "consumerFactory")
+    public ConsumerFactory<String, String> consumerFactory() {
+        return new DefaultKafkaConsumerFactory<>(consumerConfigs());
+    }
+
+    private Map<String, Object> consumerConfigs() {
         Map<String, Object> props = new HashMap<>();
         props.put(org.apache.kafka.clients.consumer.ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
                 this.kafkaSettings.getBootstrapAddress());
@@ -34,10 +38,5 @@ public class ConsumerConfig {
         props.put(org.apache.kafka.clients.consumer.ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
                 StringDeserializer.class);
         return props;
-    }
-
-    @Bean
-    public ConsumerFactory<String, String> consumerFactory() {
-        return new DefaultKafkaConsumerFactory<>(consumerConfigs());
     }
 }
